@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://peddoo902-lang.github.io/sitemap.xml
+Sitemap: https://alquran-alkareem.github.io/sitemap.xml
