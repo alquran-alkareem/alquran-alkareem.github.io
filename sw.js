@@ -1,3 +1,4 @@
+// quran sw
 const V='v1';const C='quran-'+V;
 const FILES=['./','index.html','app.js','name.js','q1.js','q2.js','q3.js','q4.js','q5.js','q6.js','q7.js','q8.js','manifest.webmanifest'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>Promise.all(FILES.map(f=>c.add(new Request(f,{cache:'reload'}))))))});
