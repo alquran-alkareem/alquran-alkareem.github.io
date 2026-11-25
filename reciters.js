@@ -137,25 +137,28 @@
       '<div class="foot" style="margin:0 0 10px">الصوت يعمل أونلاين افتراضيًا ولا يُحمَّل شيء إلا إذا اخترت. التحميل يأخذ مساحة من جهازك، وحجم كل قارئ مكتوب قبل التحميل.</div>' +
       R.map(function (r) {
         var running = job && job.id === r.id;
-        return '<div class="row" style="flex-wrap:wrap"><span><b>' + r.n + '</b><br><small id="dls-' + r.id + '" style="color:var(--mut)">' + statusText(r) + '</small></span>' +
-          '<span style="display:flex;gap:6px;flex-wrap:wrap">' +
-          (running ? '<button data-x="1">إيقاف</button>' : '<button data-f="' + r.id + '">تحميل الكل (~' + fmt(allMB(r)) + ')</button>') +
-          ((dl()[r.id] || []).length && !running ? '<button data-d="' + r.id + '">حذف</button>' : '') +
-          '</span></div>';
+        return '<div class="row" style="flex-wrap:wrap;gap:8px"><span style="width:100%"><b>' + r.n + '</b><br><small id="dls-' + r.id + '" style="color:var(--mut)">' + statusText(r) + '</small></span>' +
+          (running ? '<span style="display:flex;gap:6px"><button data-x="1">إيقاف</button></span>' :
+          '<span style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
+          '<select data-ss="' + r.id + '" style="font:inherit;padding:8px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--fg);max-width:46vw">' +
+          Q.map(function (q, i) { return '<option value="' + (i + 1) + '">' + N(i + 1) + '. ' + q.n + '</option>'; }).join('') +
+          '</select><button data-s="' + r.id + '">تحميل السورة (~' + fmt(surahMB(r, 1)) + ')</button></span>' +
+          '<span style="display:flex;gap:6px;flex-wrap:wrap"><button data-f="' + r.id + '">المصحف كامل (~' + fmt(allMB(r)) + ')</button>' +
+          ((dl()[r.id] || []).length ? '<button data-d="' + r.id + '">حذف</button>' : '') + '</span>') +
+          '</div>';
       }).join('') +
-      '<div class="row" style="flex-wrap:wrap"><span>تحميل سورة واحدة للقارئ المختار</span><span style="display:flex;gap:6px;flex-wrap:wrap">' +
-      '<select id="dsel" style="font:inherit;padding:8px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--fg)">' +
-      Q.map(function (q, i) { return '<option value="' + (i + 1) + '">' + N(i + 1) + '. ' + q.n + '</option>'; }).join('') +
-      '</select><button id="dsb">تحميل (~' + fmt(surahMB(r0, 1)) + ')</button></span></div>' +
       '<div class="foot" id="dsto"></div></div>';
     app.insertAdjacentHTML('beforeend', h);
-    function upd() { var s = +$('#dsel').value; $('#dsb').textContent = 'تحميل (~' + fmt(surahMB(cur(), s)) + ')'; }
     $('#rcs').onchange = function (e) { S.rec = e.target.value; saveS(); stop(); toast('تم اختيار ' + cur().n); settings(); };
-    $('#dsel').onchange = upd;
-    $('#dsb').onclick = function () { start(cur(), [+$('#dsel').value]); };
+    $('#dlbox').onchange = function (e) {
+      var t = e.target; if (!t.dataset || !t.dataset.ss) return;
+      var btn = document.querySelector('button[data-s="' + t.dataset.ss + '"]');
+      if (btn) btn.textContent = 'تحميل السورة (~' + fmt(surahMB(rec(t.dataset.ss), +t.value)) + ')';
+    };
     $('#dlbox').onclick = function (e) {
       var t = e.target.closest('button'); if (!t) return;
       if (t.dataset.x) { if (job) job.stop(); return; }
+      if (t.dataset.s) { var sel = document.querySelector('select[data-ss="' + t.dataset.s + '"]'); start(rec(t.dataset.s), [+sel.value]); return; }
       if (t.dataset.f) { var r = rec(t.dataset.f), all = []; for (var i = 1; i <= 114; i++) all.push(i); start(r, all); }
       if (t.dataset.d) {
         var rr = rec(t.dataset.d);
