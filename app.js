@@ -3,7 +3,7 @@ const $=s=>document.querySelector(s),app=$('#app');
 const N=n=>n.toLocaleString('ar-EG');
 const get=(k,d)=>{try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}};
 const put=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
-let S=Object.assign({fs:28,theme:'dark',mode:'book',snd:true,v:6},get('qs',{}));if(S.v!==6){S.v=6;S.mode='book';S.snd=true;S.theme='dark'}
+let S=Object.assign({fs:32,theme:'dark',mode:'book',snd:true,v:6},get('qs',{}));if(S.v!==6){S.v=6;S.mode='book';S.snd=true;S.theme='dark'}
 let bms=get('qbm',[]),last=get('qlast',null),days=get('qdays',[]);
 const saveS=()=>put('qs',S);
 function theme(){document.body.className=S.theme==='light'?'':S.theme}
