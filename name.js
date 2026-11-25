@@ -85,10 +85,17 @@
     }
     app.insertBefore(bar, app.firstChild);
   }
+  function logOnce() {
+    var n = getName();
+    if (!n) return;
+    try { if (sessionStorage.getItem('vnLogged') === n) return; sessionStorage.setItem('vnLogged', n); } catch (e) {}
+    send(n);
+  }
   function watch() {
     var app = document.getElementById('app');
     if (!app) return;
     render(false);
+    logOnce();
     new MutationObserver(function () {
       if (!document.getElementById('vngreet') && isHome()) render(false);
       if (!isHome()) { var g = document.getElementById('vngreet'); if (g) g.remove(); }
