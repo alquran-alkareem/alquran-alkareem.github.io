@@ -115,7 +115,7 @@ async function showTafsir(s,a){
 }
 window.showTafsir=showTafsir;
 const parseRef=t=>{const m=dig(t||'').match(/(\d+)\s*:\s*(\d+)/);return m?[+m[1],+m[2]]:null};
-const TAFSIR_ON=false;
+const TAFSIR_ON=true;
 function decorate(){
   if(!TAFSIR_ON)return;
   const tb=document.getElementById('tb');
