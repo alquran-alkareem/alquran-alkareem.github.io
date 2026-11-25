@@ -186,6 +186,7 @@ function bookView(P0,tgt,intro){
   function dims(){const r=bk.getBoundingClientRect(),aw=r.width,ah=r.height;spread=aw>=900&&aw/ah>1.25;if(spread){halfW=Math.round(Math.min(aw/2-16,(ah-12)/1.42));pageH=Math.round(Math.min(ah-12,halfW*1.5))}else if(aw<640){halfW=Math.round(aw);pageH=Math.round(ah)}else{pageH=Math.round(ah-8);halfW=Math.round(Math.min(aw,pageH/1.35))}pfs=Math.round(S.fs*(halfW<420?1.5:1.7));st.className='stage'+(spread?' sp':' one');st.style.width=(spread?halfW*2:halfW)+'px';st.style.height=pageH+'px';
     if(mb)mb.parentNode.remove();const m=document.createElement('div');m.style.cssText='position:absolute;visibility:hidden;left:-9999px;top:0';m.innerHTML=shell(0,'<div class="pgbody"></div>');bk.append(m);mb=m.querySelector('.pgbody');fsC=new Map()}
   const viewOf=i=>spread?i>>1:i;
+  const nextS=()=>{const cs=firstS(cur());for(let s=cs+1;s<=114;s++)if(viewOf(surahStartPage(s))>v)return s;return 0};
   const cur=()=>spread?2*v:v;
   function staticRender(focus){
     st.innerHTML=spread?`<div class="slot" style="left:0;width:${halfW}px">${pg(2*v+1)}</div><div class="slot" style="left:${halfW}px;width:${halfW}px">${pg(2*v)}</div><div class="spine"></div>`:`<div class="slot" style="left:0;width:${halfW}px">${pg(v)}</div>`;
@@ -196,8 +197,8 @@ function bookView(P0,tgt,intro){
     const sl=$('#sl');sl.value=i;
     const cs=firstS(i);head('سورة '+Q[cs-1].n,`${type(Q[cs-1])} · صفحة ${N(i+1)}`,`<a href="#/" class="hb" aria-label="الرئيسية">⌂</a><a href="#/search" class="hb" aria-label="بحث">⌕</a><button id="md" style="display:none"></button>`);$('#md').onclick=()=>{S.mode='ayah';saveS();const[s,a]=locate(PS[cur()]);location.hash='#/s/'+s+'/'+a;route()};
     $('#ps').textContent=cs>1?'› '+Q[cs-2].n:'';$('#ps').style.visibility=cs>1?'visible':'hidden';
-    $('#ns').textContent=cs<114?Q[cs].n+' ‹':'';$('#ns').style.visibility=cs<114?'visible':'hidden';
-    $('#ps').dataset.s=cs-1;$('#ns').dataset.s=cs+1;
+    const nsx=nextS();$('#ns').textContent=nsx?Q[nsx-1].n+' ‹':'';$('#ns').style.visibility=nsx?'visible':'hidden';
+    $('#ps').dataset.s=cs-1;$('#ns').dataset.s=nsx;
     const[s,a]=locate(PS[i]);markRead(s,a);history.replaceState(null,'','#/p/'+(i+1));
     renderTb();
   }
@@ -234,7 +235,7 @@ function bookView(P0,tgt,intro){
   BK.onplay=(ss,x)=>{if(!alive)return;playK={s:ss,a:x};if(busy)return;const tv=viewOf(pageOfSA(ss,x));if(tv===v)staticRender();else if(tv===v+1)flip(1);else if(tv===v-1)flip(-1);else{v=tv;staticRender()}};
   BK.onstop=()=>{if(alive&&playK){playK=null;if(!busy)staticRender()}};
   BK.debug=(dir,p)=>{const k=startFlip(dir);if(k)setP(p)};
-  BK.jump=jump;BK.goSurah=goSurah;BK.cur=cur;BK.curS=()=>firstS(cur());BK.flip=flip;
+  BK.jump=jump;BK.goSurah=goSurah;BK.cur=cur;BK.curS=()=>firstS(cur());BK.nextS=()=>nextS();BK.flip=flip;
   let g=null,moved=false;
   let lpT=null,lp=false;const lpc=()=>{clearTimeout(lpT);lpT=null};
   st.addEventListener('pointerdown',e=>{lp=false;lpc();if(busy)return;g={x:e.clientX,y:e.clientY,id:e.pointerId,t:performance.now(),on:false};moved=false;const tv=e.target.closest('.v');if(tv)lpT=setTimeout(()=>{lpT=null;if(!g||g.on)return;lp=true;const s=+tv.dataset.s,a=+tv.dataset.a;sel={s,a};if(navigator.vibrate)navigator.vibrate(20);g=null;staticRender()},450)});
@@ -295,9 +296,9 @@ function adList(id){
   function open(){
     const b=$('#dbk');
     if(document.body.classList.contains('bookmode')&&BK.alive){
-      const cs=BK.curS(),pg=BK.cur()+1;
-      b.innerHTML=`<div class="sec">التنقل في المصحف · سورة ${Q[cs-1].n} · صفحة ${N(pg)}</div><div class="two"><button id="dps" ${cs>1?'':'disabled'}>› ${cs>1?Q[cs-2].n:''}</button><button id="dns" ${cs<114?'':'disabled'}>${cs<114?Q[cs].n:''} ‹</button></div><div class="pj"><input class="inp" id="dpn" type="number" min="1" max="604" placeholder="رقم الصفحة (١-٦٠٤)"><button id="dpg">اذهب</button></div><input type="range" id="dsl" dir="rtl" min="0" max="603" value="${pg-1}" style="margin-top:10px"><div class="sec">الخط: <button id="dfm" style="padding:2px 10px">أ-</button> <button id="dfp" style="padding:2px 10px">أ+</button></div>`;
-      $('#dps').onclick=()=>{close();BK.goSurah(cs-1)};$('#dns').onclick=()=>{close();BK.goSurah(cs+1)};
+      const cs=BK.curS(),pg=BK.cur()+1;const ns=BK.nextS();
+      b.innerHTML=`<div class="sec">التنقل في المصحف · سورة ${Q[cs-1].n} · صفحة ${N(pg)}</div><div class="two"><button id="dps" ${cs>1?'':'disabled'}>› ${cs>1?Q[cs-2].n:''}</button><button id="dns" ${ns?'':'disabled'}>${ns?Q[ns-1].n:''} ‹</button></div><div class="pj"><input class="inp" id="dpn" type="number" min="1" max="604" placeholder="رقم الصفحة (١-٦٠٤)"><button id="dpg">اذهب</button></div><input type="range" id="dsl" dir="rtl" min="0" max="603" value="${pg-1}" style="margin-top:10px"><div class="sec">الخط: <button id="dfm" style="padding:2px 10px">أ-</button> <button id="dfp" style="padding:2px 10px">أ+</button></div>`;
+      $('#dps').onclick=()=>{close();BK.goSurah(cs-1)};$('#dns').onclick=()=>{close();BK.goSurah(ns)};
       $('#dpg').onclick=()=>{const n=+$('#dpn').value;if(n>=1&&n<=604){close();BK.jump(n-1)}};
       $('#dsl').onchange=e=>{close();BK.jump(+e.target.value)};
       const fz=d=>{S.fs=Math.max(18,Math.min(60,S.fs+d));saveS();close();route()};
