@@ -1,4 +1,4 @@
-const V='v6';const C='quran-'+V;
+const V='v7';const C='quran-'+V;
 const FILES=['./','index.html','app.js','name.js','reciters.js','q1.js','q2.js','q3.js','q4.js','q5.js','q6.js','q7.js','q8.js','manifest.webmanifest'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>Promise.all(FILES.map(f=>c.add(new Request(f,{cache:'reload'}))))))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x.startsWith('quran-')&&x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
